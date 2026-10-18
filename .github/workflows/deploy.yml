@@ -20,9 +20,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
+      - uses: jdx/mise-action@v2
 
       - name: Build games
         run: |
@@ -32,7 +30,9 @@ jobs:
             name=$(basename "$dir")
             if [ -f "$dir/package.json" ]; then
               echo "::group::Build $name"
-              (cd "$dir" && npm install --no-audit --no-fund && npm run build -- --base=./)
+              (cd "$dir" \
+                && if [ -f package-lock.json ]; then npm ci --no-audit --no-fund; else npm install --no-audit --no-fund; fi \
+                && npm run build -- --base=./)
               mkdir -p "_site/games/$name"
               cp -r "$dir/dist/." "_site/games/$name/"
               echo "::endgroup::"

@@ -20,6 +20,8 @@ game-playground/
 
 各ゲームは `games/<ゲーム名>/` 単位で独立しており、フレームワーク(Vanilla JS / React / Vue / Svelte / Phaser など)を自由に選択できます。
 
+Node.js のバージョンは [mise](https://mise.jdx.dev/) で管理しています(`mise.toml` 参照)。
+
 ## 公開の仕組み
 
 - `main` ブランチにPushすると、GitHub Actionsが自動でビルド & デプロイします
@@ -40,11 +42,17 @@ game-playground/
 
 ## ローカル開発
 
+[mise](https://mise.jdx.dev/) がインストールされていれば、`mise.toml` に基づくNode.jsバージョンが自動で使われます。
+
 ```bash
+mise install    # mise.toml で指定したツールをインストール(初回のみ)
+
 cd games/tic-tac-toe
 npm install
 npm run dev
 ```
+
+CI(GitHub Actions)でも [jdx/mise-action](https://github.com/jdx/mise-action) 経由で同じ `mise.toml` を使用するため、ローカルとCIでバージョンが揃います。
 
 ## ライセンス
 
