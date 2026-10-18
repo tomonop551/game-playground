@@ -1,0 +1,91 @@
+---
+import { readdirSync, readFileSync } from "node:fs";
+import { join } from "node:path";
+
+// リポジトリルートの games/* を走査し、各 package.json からゲーム情報を取得
+const repoRoot = join(process.cwd(), "..");
+const gamesDir = join(repoRoot, "games");
+
+const games = readdirSync(gamesDir, { withFileTypes: true })
+  .filter((entry) => entry.isDirectory())
+  .map((entry) => {
+    const pkg = JSON.parse(
+      readFileSync(join(gamesDir, entry.name, "package.json"), "utf-8"),
+    );
+    return { slug: entry.name, name: pkg.name, description: pkg.description ?? "" };
+  });
+---
+
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Game Playground</title>
+  </head>
+  <body>
+    <header>
+      <h1>🎮 Game Playground</h1>
+      <p>さまざまなフロントエンド技術で作るWebゲームの実験場</p>
+    </header>
+
+    <main>
+      <ul class="games">
+        {games.map((game) => (
+          <li>
+            <a href={`games/${game.slug}/`}>
+              <span class="name">{game.name}</span>
+              <span class="description">{game.description}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </main>
+
+    <footer>
+      <a href="https://github.com/tomonop551/game-playground">GitHub リポジトリ</a>
+    </footer>
+  </body>
+</html>
+
+<style is:global>
+  :root {
+    --bg: #0f1117;
+    --card: #1a1e2a;
+    --text: #e6e8ee;
+    --muted: #8b93a7;
+    --accent: #6c8cff;
+    --accent-hover: #8aa4ff;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
+    min-height: 100vh;
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 4rem 1.5rem;
+  }
+  header { margin-bottom: 2.5rem; }
+  h1 { font-size: 2rem; letter-spacing: 0.02em; }
+  header p { color: var(--muted); margin-top: 0.5rem; font-size: 0.95rem; }
+  .games { list-style: none; display: flex; flex-direction: column; gap: 0.75rem; }
+  .games a {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+    background: var(--card);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 10px;
+    padding: 1rem 1.25rem;
+    color: var(--text);
+    text-decoration: none;
+    transition: border-color 0.15s ease;
+  }
+  .games a:hover { border-color: var(--accent); }
+  .games .name { font-weight: bold; font-size: 1.05rem; color: var(--accent-hover); }
+  .games .description { color: var(--muted); font-size: 0.85rem; }
+  footer { margin-top: 2.5rem; font-size: 0.8rem; }
+  footer a { color: var(--muted); }
+</style>

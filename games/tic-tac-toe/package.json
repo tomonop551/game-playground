@@ -1,5 +1,6 @@
 {
   "name": "tic-tac-toe",
+  "description": "◯×ゲーム — 二人対戦の三目並べ",
   "private": true,
   "version": "0.1.0",
   "type": "module",

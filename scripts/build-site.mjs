@@ -8,12 +8,12 @@ const site = join(root, "_site");
 await rm(site, { recursive: true, force: true });
 await mkdir(site, { recursive: true });
 
-// ポータルサイト(ルートの静的ファイル)
-const ASSET_EXTENSIONS = [".html", ".css", ".js", ".svg", ".png", ".jpg", ".ico"];
-for (const file of await readdir(root, { withFileTypes: true })) {
-  if (file.isFile() && ASSET_EXTENSIONS.some((ext) => file.name.endsWith(ext))) {
-    await cp(join(root, file.name), join(site, file.name));
-  }
+// ポータル(Astro)のビルド成果物をルートに配置
+const portalDist = join(root, "portal", "dist");
+if (existsSync(portalDist)) {
+  await cp(portalDist, site, { recursive: true });
+} else {
+  console.warn("portal/dist が存在しません。先に `pnpm build` を実行してください。");
 }
 
 // ゲーム(pnpmワークスペースでビルドされた dist、または静的ゲームのディレクトリ)
