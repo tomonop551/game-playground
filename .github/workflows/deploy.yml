@@ -18,40 +18,23 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      # v7.0.1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
 
-      - uses: jdx/mise-action@v2
+      # mise.toml に基づき node / pnpm をセットアップ
+      # v5.2.0
+      - uses: jdx/mise-action@9b200bcecbfd6303e69a4a261b2e09e3757440a7
 
-      - name: Build games
-        run: |
-          mkdir -p _site
-          shopt -s nullglob
-          for dir in games/*/; do
-            name=$(basename "$dir")
-            if [ -f "$dir/package.json" ]; then
-              echo "::group::Build $name"
-              (cd "$dir" \
-                && if [ -f package-lock.json ]; then npm ci --no-audit --no-fund; else npm install --no-audit --no-fund; fi \
-                && npm run build -- --base=./)
-              mkdir -p "_site/games/$name"
-              cp -r "$dir/dist/." "_site/games/$name/"
-              echo "::endgroup::"
-            else
-              # 静的ゲームはディレクトリをそのままコピー
-              mkdir -p "_site/games/$name"
-              cp -r "$dir/." "_site/games/$name/"
-              find "_site/games/$name" -name node_modules -type d -prune -exec rm -rf {} +
-            fi
-          done
+      - run: pnpm install --frozen-lockfile
 
-      - name: Copy portal
-        run: |
-          shopt -s nullglob
-          for f in *.html *.css *.js *.png *.jpg *.svg *.ico; do
-            cp "$f" _site/
-          done
+      # pnpm-workspace.yaml の games/* を一括ビルド
+      - run: pnpm build
 
-      - uses: actions/upload-pages-artifact@v3
+      # ポータルとビルド成果物を _site に組み立て
+      - run: pnpm build:site
+
+      # v5.0.0
+      - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9
         with:
           path: _site
 
@@ -62,5 +45,6 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
+      # v5.0.1
       - id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346
