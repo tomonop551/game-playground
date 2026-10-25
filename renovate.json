@@ -1,0 +1,30 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    ":dependencyDashboard",
+    ":semanticCommits",
+    ":timezone(Asia/Tokyo)",
+    "helpers:pinGitHubActionDigests"
+  ],
+  "labels": ["dependencies"],
+  "schedule": ["before 9am on monday"],
+  "packageRules": [
+    {
+      "description": "GitHub Actions の更新を1つのPRにまとめる(SHA ピン留めは pinGitHubActionDigests で維持)",
+      "matchManagers": ["github-actions"],
+      "groupName": "GitHub Actions"
+    },
+    {
+      "description": "npm 依存のマイナー・パッチ更新を1つのPRにまとめる",
+      "matchManagers": ["npm"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "groupName": "npm dependencies (minor/patch)"
+    },
+    {
+      "description": "mise で管理するツール(node / pnpm)の更新",
+      "matchManagers": ["mise"],
+      "groupName": "mise tools"
+    }
+  ]
+}

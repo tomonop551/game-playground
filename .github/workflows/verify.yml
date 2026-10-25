@@ -1,0 +1,34 @@
+name: Verify
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      # mise.toml に基づき node / pnpm をセットアップ
+      - name: Install Node / pnpm (from mise.toml)
+        uses: jdx/mise-action@9b200bcecbfd6303e69a4a261b2e09e3757440a7 # v5.2.0
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # pnpm-workspace.yaml の games/* を一括ビルド
+      - name: Build games and portal
+        run: pnpm build
+
+      # GitHub Pages 用の _site/ を組み立て(公開物が壊れていないか検証)
+      - name: Assemble site
+        run: pnpm build:site
