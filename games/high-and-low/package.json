@@ -3,6 +3,9 @@
   "description": "ハイ&ロー — 次のカードが高いか低いかを連続で当てるゲーム",
   "private": true,
   "type": "module",
+  "imports": {
+    "#lib/*": "./src/lib/*"
+  },
   "scripts": {
     "dev": "vite dev",
     "build": "vite build",
