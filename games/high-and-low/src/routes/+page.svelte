@@ -1,31 +1,8 @@
 <script>
   import { onMount } from "svelte";
+  import { createDeck, judgeGuess, rankLabel } from "#lib/game";
 
-  const SUITS = [
-    { symbol: "♠", color: "black" },
-    { symbol: "♥", color: "red" },
-    { symbol: "♦", color: "red" },
-    { symbol: "♣", color: "black" },
-  ];
-  const RANK_LABELS = { 1: "A", 11: "J", 12: "Q", 13: "K" };
   const BEST_KEY = "high-and-low:best";
-
-  function rankLabel(rank) {
-    return RANK_LABELS[rank] ?? String(rank);
-  }
-
-  function createDeck() {
-    const deck = [];
-    for (const suit of SUITS) {
-      for (let rank = 1; rank <= 13; rank++) deck.push({ rank, suit });
-    }
-    // Fisher-Yates シャッフル
-    for (let i = deck.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [deck[i], deck[j]] = [deck[j], deck[i]];
-    }
-    return deck;
-  }
 
   let deck = $state([]);
   let current = $state(null); // { rank, suit }
@@ -50,16 +27,16 @@
   function guess(dir) {
     if (phase !== "playing" || !current) return;
     const next = deck.pop();
+    const result = judgeGuess(current.rank, next.rank, dir);
 
-    if (next.rank === current.rank) {
+    if (result === "skip") {
       // 同じランクはスキップ(スコアに影響なし)
       current = next;
       message = `同じランク(${rankLabel(next.rank)}) — スキップ`;
       return;
     }
 
-    const hit = dir === "high" ? next.rank > current.rank : next.rank < current.rank;
-    if (hit) {
+    if (result === "hit") {
       streak += 1;
       if (streak > best) {
         best = streak;

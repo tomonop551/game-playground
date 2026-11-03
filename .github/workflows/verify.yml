@@ -25,6 +25,10 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      # games workspace のロジックテスト(テストスクリプトを持つ package のみ実行)
+      - name: Run tests
+        run: pnpm test
+
       # pnpm-workspace.yaml の games/* を一括ビルド
       - name: Build games and portal
         run: pnpm build
