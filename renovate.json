@@ -7,23 +7,36 @@
     ":timezone(Asia/Tokyo)",
     "helpers:pinGitHubActionDigests"
   ],
-  "labels": ["dependencies"],
-  "schedule": ["before 9am on monday"],
+  "labels": [
+    "dependencies"
+  ],
+  "schedule": [
+    "* * * * 4,5,6"
+  ],
   "packageRules": [
     {
       "description": "GitHub Actions の更新を1つのPRにまとめる(SHA ピン留めは pinGitHubActionDigests で維持)",
-      "matchManagers": ["github-actions"],
+      "matchManagers": [
+        "github-actions"
+      ],
       "groupName": "GitHub Actions"
     },
     {
       "description": "npm 依存のマイナー・パッチ更新を1つのPRにまとめる",
-      "matchManagers": ["npm"],
-      "matchUpdateTypes": ["minor", "patch"],
+      "matchManagers": [
+        "npm"
+      ],
+      "matchUpdateTypes": [
+        "minor",
+        "patch"
+      ],
       "groupName": "npm dependencies (minor/patch)"
     },
     {
       "description": "mise で管理するツール(node / pnpm)の更新",
-      "matchManagers": ["mise"],
+      "matchManagers": [
+        "mise"
+      ],
       "groupName": "mise tools"
     }
   ]
