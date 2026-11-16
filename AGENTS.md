@@ -46,7 +46,7 @@ game-playground/
 1. `games/<ゲーム名>/` にプロジェクトを作成する(ディレクトリ名はケバブケース)
 2. `package.json` に `name` と `description`(日本語)を必ず書く。**ポータルの一覧はここから自動生成される**ため、ポータルを編集する必要はない
 3. ビルドするゲームは `build` スクリプトを用意し、成果物を `dist/` に出力する。Vite系なら `base: "./"`(相対パス)を設定する
-4. `package.json` を持たない静的ゲームは、ディレクトリの中身がそのまま公開される
+4. `package.json` を持たない静的ゲームは、ディレクトリの中身がそのまま公開される。ポータル一覧には `index.html` の `<title>`(name)と `<meta name="description">`(description)が使われる。`package.json` も `index.html` の `<title>` も無いディレクトリ、および `package.json` が壊れている(`JSON.parse` 失敗)ディレクトリは、ビルドを落とさず warn ログを出して一覧からスキップされる
 
 ### GitHub Actions を編集するとき
 

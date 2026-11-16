@@ -36,7 +36,7 @@ Node.js / pnpm のバージョンは [mise](https://mise.jdx.dev/) で管理し�
 - `pnpm build:site` でポータルの成果物とゲームを `_site/` に組み立て
   - `package.json` を持つゲームは `dist/` の成果物を配置
   - 持たないゲーム(静的HTMLなど)はディレクトリの中身をそのまま配置
-- ポータルのゲーム一覧は `games/*/package.json` の `name` / `description` から**自動生成**されます
+- ポータルのゲーム一覧は `games/*/package.json` の `name` / `description` から**自動生成**されます。`package.json` を持たない静的ゲームは `index.html` の `<title>` / `<meta name="description">` を使い、どちらも読めないディレクトリは warn を出して一覧からスキップされます(ビルドは落ちません)
 - GitHub ActionsはSHAでピン留めしたバージョンを使用しています
 
 ## 新しいゲームを追加する
