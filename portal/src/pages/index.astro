@@ -2,18 +2,59 @@
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
-// リポジトリルートの games/* を走査し、各 package.json からゲーム情報を取得
+// リポジトリルートの games/* を走査し、各ゲームの一覧情報を取得。
+// 1. package.json の name / description を優先
+// 2. 無い静的ゲームは index.html の <title> / <meta name="description"> にフォールバック
+// 3. どちらも読めない・壊れたディレクトリはビルドを落とさず warn してスキップ
 const repoRoot = join(process.cwd(), "..");
 const gamesDir = join(repoRoot, "games");
 
-const games = readdirSync(gamesDir, { withFileTypes: true })
-  .filter((entry) => entry.isDirectory())
-  .map((entry) => {
-    const pkg = JSON.parse(
-      readFileSync(join(gamesDir, entry.name, "package.json"), "utf-8"),
-    );
-    return { slug: entry.name, name: pkg.name, description: pkg.description ?? "" };
-  });
+function readText(path) {
+  try {
+    return readFileSync(path, "utf-8");
+  } catch {
+    return null;
+  }
+}
+
+function fromPackageJson(dir) {
+  const raw = readText(join(dir, "package.json"));
+  if (raw === null) return null;
+  try {
+    const pkg = JSON.parse(raw);
+    return { name: pkg.name ?? null, description: pkg.description ?? "" };
+  } catch {
+    return { broken: true };
+  }
+}
+
+const titlePattern = /<title[^>]*>([\s\S]*?)<\/title>/i;
+const descPattern = /<meta\s+name=["']description["']\s+content=["']([^"']*)["']/i;
+
+function fromStaticHtml(dir) {
+  const raw = readText(join(dir, "index.html"));
+  if (raw === null) return null;
+  const title = raw.match(titlePattern)?.[1]?.trim();
+  if (!title) return null;
+  return { name: title, description: raw.match(descPattern)?.[1]?.trim() ?? "" };
+}
+
+const games = [];
+for (const entry of readdirSync(gamesDir, { withFileTypes: true })) {
+  if (!entry.isDirectory()) continue;
+  const dir = join(gamesDir, entry.name);
+  const fromPkg = fromPackageJson(dir);
+  if (fromPkg?.broken) {
+    console.warn(`games/${entry.name}: package.json が壊れているため一覧からスキップします`);
+    continue;
+  }
+  const info = fromPkg ?? fromStaticHtml(dir);
+  if (!info?.name) {
+    console.warn(`games/${entry.name}: 一覧情報(name)が無いためスキップします`);
+    continue;
+  }
+  games.push({ slug: entry.name, name: info.name, description: info.description });
+}
 ---
 
 <!doctype html>
