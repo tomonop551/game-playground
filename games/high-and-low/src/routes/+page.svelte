@@ -1,6 +1,6 @@
 <script>
   import { onMount } from "svelte";
-  import { createDeck, judgeGuess, rankLabel } from "#lib/game";
+  import { createDeck, drawCard, judgeGuess, rankLabel } from "#lib/game";
 
   const BEST_KEY = "high-and-low:best";
 
@@ -26,7 +26,13 @@
 
   function guess(dir) {
     if (phase !== "playing" || !current) return;
-    const next = deck.pop();
+    const next = drawCard(deck);
+    if (!next) {
+      // 山札枯渇: 判定できず TypeError になっていた。クリア扱いで終了する
+      message = `山札を引き切った! クリア (連続 ${streak})`;
+      phase = "over";
+      return;
+    }
     const result = judgeGuess(current.rank, next.rank, dir);
 
     if (result === "skip") {

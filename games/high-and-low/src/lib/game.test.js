@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createDeck, judgeGuess, rankLabel } from "./game.js";
+import { createDeck, drawCard, judgeGuess, rankLabel } from "./game.js";
 
 const cardKey = (c) => `${c.rank}${c.suit.symbol}`;
 
@@ -67,5 +67,33 @@ describe("judgeGuess", () => {
     expect(judgeGuess(13, 1, "low")).toBe("hit");
     expect(judgeGuess(5, 6, "low")).toBe("miss");
     expect(judgeGuess(1, 13, "low")).toBe("miss");
+  });
+});
+
+describe("drawCard", () => {
+  it("カードが残っていれば1枚取り出して山札を1枚減らす", () => {
+    const deck = createDeck(() => 0);
+    const before = deck.length;
+    const card = drawCard(deck);
+    expect(card).not.toBeNull();
+    expect(card.rank).toBeGreaterThanOrEqual(1);
+    expect(card.suit.symbol).toBeTruthy();
+    expect(deck).toHaveLength(before - 1);
+  });
+
+  it("山札を枯渇させても undefined を露出せず null を返し、例外にならない (#25 回帰)", () => {
+    const deck = createDeck(() => 0);
+    let count = 0;
+    expect(() => {
+      // 52枚を最後まで引き切っても毎回カードを返し、その次は null (呼び出し側のクリア分岐)
+      while (true) {
+        const card = drawCard(deck);
+        if (card === null) break;
+        void card.rank;
+        count += 1;
+      }
+      expect(drawCard(deck)).toBeNull();
+    }).not.toThrow();
+    expect(count).toBe(52);
   });
 });
