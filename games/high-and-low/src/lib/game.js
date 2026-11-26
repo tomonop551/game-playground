@@ -25,6 +25,13 @@ export function createDeck(rand = Math.random) {
   return deck;
 }
 
+// 山札から1枚引く。枯渇時は deck.pop() の undefined を露出さず null を返す
+// (呼び出し側が undefined と山札切れを区別できず TypeError になっていた)
+export function drawCard(deck) {
+  if (deck.length === 0) return null;
+  return deck.pop();
+}
+
 // ハイ&ロー判定: 同じランクは "skip"(スコアに影響なし)、当たり "hit"、それ以外 "miss"
 export function judgeGuess(currentRank, nextRank, dir) {
   if (nextRank === currentRank) return "skip";
